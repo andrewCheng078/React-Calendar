@@ -1,0 +1,14 @@
+.calendars{
+    width: 50%;
+    margin: auto 0;
+}
+.calendars_tabWrap{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    ul{
+        list-style: none;
+        display: flex;
+        justify-content: space-between;
+    }
+}
