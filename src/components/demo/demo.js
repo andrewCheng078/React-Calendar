@@ -177,7 +177,7 @@ export default class Demo extends React.Component {
                 rows.push(insertRow);
             }
         });
-
+        console.log('rows',rows);
         let trElems = rows.map((d, i) => {
             return (
                 <tr key={i*100}>

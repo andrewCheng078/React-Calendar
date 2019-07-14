@@ -33,10 +33,10 @@ export default class App extends Component {
           <Calendar
           ref={ this.calendarRef }
           dataSource={ false }
-          initYearMonth={ `201705` }
+          initYearMonth={ `201907` }
           dataKeySetting={ false }
           />
-          <Demo/>
+          {/* <Demo/> */}
       </div>
     )
   }
