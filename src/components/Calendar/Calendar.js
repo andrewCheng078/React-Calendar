@@ -25,7 +25,6 @@ export default class Calendar extends Component {
     } 
 
     createDays = () => {
-<<<<<<< HEAD
         const { firstDayWeek, endDayWeek, daysInMonth, data } = this.state;
 
         for(let i=0;i<daysInMonth;i++){
@@ -58,9 +57,6 @@ export default class Calendar extends Component {
         }
         console.log('data',data)
         
-=======
-        const { firstDayWeek, endDayWeek, daysInMonth } = this.state;
->>>>>>> buildcalendar
 
     }
 
@@ -99,36 +95,23 @@ export default class Calendar extends Component {
     }
 
 
-<<<<<<< HEAD
   async  componentDidMount() {
         let { initYearMonth } = this.state;
         
-=======
-    componentDidMount() {
-        let { initYearMonth } = this.state;
-        this.listValue();
->>>>>>> buildcalendar
         const firstDayWeek = moment(initYearMonth, "YYYYMM").startOf('month').format('d');
         const endDayWeek = moment(initYearMonth, "YYYYMM").endOf('month').format('d');
         const daysInMonth = moment(initYearMonth).daysInMonth();
         console.log('firstDayWeek', firstDayWeek);
         console.log('endDayWeek', endDayWeek);
         console.log('daysInMonth', daysInMonth);
-<<<<<<< HEAD
      await   this.setState({
-=======
-        this.setState({
->>>>>>> buildcalendar
             firstDayWeek: firstDayWeek,
             endDayWeek: endDayWeek,
             daysInMonth: daysInMonth,
         });
-<<<<<<< HEAD
      await   this.listValue();
      await   this.createDays();
         
-=======
->>>>>>> buildcalendar
     }
 
 
