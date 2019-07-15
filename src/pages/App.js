@@ -1,12 +1,40 @@
 import React, { Component } from 'react'
 import Calendar from '../components/Calendar/Calendar';
-
 export default class App extends Component {
+  constructor(){
+    super();
+    this.state={
+
+    }
+    this.calendarRef=React.createRef();
+  }
+
+  addData(data){
+    // addData
+  }
+  switch(event){
+    //switch
+  }
+  resetData(){
+    //resetData
+  }
+  destroy(){
+    //destroy
+  }
+
+  componentDidMount(){
+
+  }
+
   render() {
     return (
       <div>
-           <h1>app</h1>
-      <Calendar/>
+          <Calendar
+          ref={ this.calendarRef }
+          dataSource={ false }
+          // initYearMonth={ `201907` }
+          dataKeySetting={ false }
+          />
       </div>
     )
   }
