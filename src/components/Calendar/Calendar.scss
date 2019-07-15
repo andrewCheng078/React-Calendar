@@ -1,46 +1,112 @@
 .calendars{
     padding: 30px;
     margin: auto 0;
+    width: 50%;
 }
 .calendars_tabWrap{
     width: 100%;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    a{color: black;}
+    padding: 0;
+    margin-bottom: 0;
+    white-space: nowrap;
+    font-size: 0;
+    background-color: #ede9dd;
+    overflow: hidden;
+    a{color: red;}
     ul{
         list-style: none;
         display: flex;
+        flex:8;
         li{
-            margin: 10px;
-            a{color: black;}
-           
+            width: 33.3333%;
+            text-align: center;
+            font-size: 16px;
+            color: #666;
+            line-height: 1.25;
+            a{
+                height: 100%;
+                display: block;
+                padding: 10px;
+                margin-top: 5px;
+            }
         }
     }
    
+    .active{
+        background-color: #FFF;
+    }
 }
 .calendars table{
     width: 100%;
     text-align: center;
     border-collapse: collapse;
     border-spacing: 0;
-    border: 1px solid;
-    thead{border-bottom: 1px solid black;}
+    border: 1px solid #f4f4f4;
+
+    thead{
+        border-bottom: 1px solid #f4f4f4;
+        th{
+            line-height: 30px;
+            color: #666;
+            background-color: #fff;
+            border-top: 1px solid #f4f4f4;
+            border-bottom: 1px solid #f4f4f4;
+        }
+    }
+    tbody{position: relative;}
+
     tr{
         td{
             position: relative;
-            border-left: 1px solid black;
-            border-bottom: 1px solid;
-            height: 60px;
+            border-left: 1px solid #f4f4f4;
+            border-bottom: 1px solid #f4f4f4;
+            height: 85px;
+            width: 14.2857%;
+        }
+        td:after{
+            position: absolute;
+            content:  attr(date);
+            top: 2px;
+            left: 2px;
+            color: #444;
         }
         td:before{
             position: absolute;
-            content:  attr(date);
-            width: 20px;
-            left: 0;
-            top: 0;
-            border-right: 1px solid ;
-            border-bottom: 1px solid;
+            content:  attr(guaranteed);
+            top: 2px;
+            right: 2px;
+            color: #fff;
+            text-align: center;
+            line-height: 20px;
+            background-color: #fe8400;
         }
     }
+}
+
+.disable{
+    background-color: #f8f8f8;
+    cursor: default;
+}
+.js_day{
+    margin-top: 22px;
+    display: flex;
+    justify-content: flex-start;
+    text-align: left;
+    span{
+        display: block;
+    }
+    .price{
+        color: #e10500;
+    }
+    .status_green{
+        color: #1c9c9d;
+    }
+    .status_org{
+        color:#fe8400;
+    }
+}
+.none{
+    display: none;
 }
