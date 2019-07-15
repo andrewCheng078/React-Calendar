@@ -35,7 +35,7 @@
         }
         td:before{
             position: absolute;
-            content: '14';
+            content:  attr(date);
             width: 20px;
             left: 0;
             top: 0;

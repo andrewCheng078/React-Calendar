@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import './Calendar.scss';
 import moment from 'moment';
-
+import jsonData from '../../data/data1.json';
 
 
 export default class Calendar extends Component {
@@ -11,8 +11,8 @@ export default class Calendar extends Component {
         firstDayWeek: '',
         endDayWeek: '',
         daysInMonth: '',
-        days:[],
-        data:[],
+        days: [],
+        data: [],
         listLeft: '',
         listCenter: '',
         listRight: '',
@@ -20,72 +20,73 @@ export default class Calendar extends Component {
     }
 
     filterData = () => {
+   
+        let result = Array.from(new Set(jsonData));
+        console.log('result',result.length); // [1, 2, "a", 3, "b"]
+        console.log('origin',jsonData.length);
         //do something
-
-    } 
-
-    createDays = () => {
-        const { firstDayWeek, endDayWeek, daysInMonth, data } = this.state;
-
-        for(let i=0;i<daysInMonth;i++){
-            data.push({
-                data:i,
-                year:'',
-                month:'',
-                year:'',
-            })
-        }
-
-        for(let i=0;i<firstDayWeek;i++){
-            data.unshift({
-                data:'null',
-                year:'',
-                month:'',
-                year:'',
-            })
-        }
-        const endDay = 42-data.length;
-        console.log(endDay);
-        
-        for(let i=0;i<endDay;i++){
-            data.push({
-                data:'null',
-                year:'',
-                month:'',
-                year:'',
-            })
-        }
-        console.log('data',data)
-        
 
     }
 
-     prevMonth = async ()=> {
+    createDays = async () => {
+        let { firstDayWeek, daysInMonth, } = this.state;
+        let data = [];
+        for (let i = 0; i < daysInMonth; i++) {
+            data.push({
+                data: i,
+                year: '1',
+                month: '1',
+                year: '1',
+            })
+        }
 
-        let prev = moment(this.state.initYearMonth, "YYYYMM").add(-1, "M").format("YYYYMM");
+        for (let i = 0; i < firstDayWeek; i++) {
+            data.unshift({
+                data: 'n',
+            })
+        }
+
+        const endDay = 42 - data.length;
+
+        for (let i = 0; i < endDay; i++) {
+            data.push({
+                data: 'n',
+            })
+        }
+
+        let newArray = [];
+        let allArray = [];
+
+        for (let i = 0; i < data.length; i++) {
+            newArray.push(data[i]);
+            if (newArray.length === 7) {
+                allArray.push(newArray);
+                newArray = [];
+            }
+        }
+
+        console.log('allArray', allArray)
         await this.setState({
-            initYearMonth: prev,
-
+            days: allArray,
         })
+    }
+
+    prevMonth = async () => {
+        await this.updateDayInfo(-1);
         await this.listValue();
-        console.log('prev',prev);
+        await this.createDays();
     }
 
     nextMonth = async () => {
-
-        let next = moment(this.state.initYearMonth, "YYYYMM").add(+1, "M").format("YYYYMM");
-        await this.setState({
-            initYearMonth: next,
-
-        })
+        await this.updateDayInfo(+1);
         await this.listValue();
-        console.log('next',next);
+        await this.createDays();
     }
 
-    leftList = () => {this.prevMonth()}
-    centerList = () => { /*center*/}
-    rightList = () => {this.nextMonth()}
-
+    leftList = () => { this.prevMonth() }
+    centerList = () => { /*center*/ }
+    rightList = () => { this.nextMonth() }
+    
     listValue = () => {
         this.setState({
             listLeft: moment(this.state.initYearMonth, "YYYYMM").add(-1, "M").format("YYYY M"),
@@ -94,48 +95,48 @@ export default class Calendar extends Component {
         })
     }
 
+    updateDayInfo(operation) {
+        const initYearMonth = this.state.initYearMonth;
+        const newDay = moment(initYearMonth, "YYYYMM").add(operation, "M").format("YYYYMM");
+        const firstDayWeek = moment(newDay, "YYYYMM").startOf('month').format('d');
+        const daysInMonth = moment(newDay).daysInMonth();
 
-  async  componentDidMount() {
-        let { initYearMonth } = this.state;
-        
-        const firstDayWeek = moment(initYearMonth, "YYYYMM").startOf('month').format('d');
-        const endDayWeek = moment(initYearMonth, "YYYYMM").endOf('month').format('d');
-        const daysInMonth = moment(initYearMonth).daysInMonth();
-        console.log('firstDayWeek', firstDayWeek);
-        console.log('endDayWeek', endDayWeek);
-        console.log('daysInMonth', daysInMonth);
-     await   this.setState({
+        this.setState({
+            initYearMonth: newDay,
             firstDayWeek: firstDayWeek,
-            endDayWeek: endDayWeek,
             daysInMonth: daysInMonth,
-        });
-     await   this.listValue();
-     await   this.createDays();
-        
+        })
+    }
+
+    async  componentDidMount() {
+        await this.updateDayInfo(0);
+        await this.listValue();
+        await this.filterData();
+        await this.createDays();
     }
 
 
     render() {
-        const { initYearMonth, listLeft, listCenter, listRight, } = this.state;
+        const { listLeft, listCenter, listRight, days } = this.state;
         return (
             <div>
                 {/* 可加上這兩個修飾符來切換日曆模式或列表模式 calendars_daymode,calendars_listmode */}
                 <div className="calendars calendars_daymode">
-                <a href="#" className="prev on"  style={{float:'right'}}>切換模式</a>
+                    <a href="javascript:void(0)" className="prev on" style={{ float: 'right' }}>切換模式</a>
                     <div className="calendars_tabWrap">
-                        <a href="#" className="prev on" onClick={this.prevMonth}>向左</a>
+                        <a href="javascript:void(0)" className="prev on" onClick={this.prevMonth}>向左</a>
                         <ul className="ntb_tab">
                             <li className="tab" onClick={this.leftList}>
-                                <a href="#"><span>{listLeft}月</span></a>
+                                <a href="javascript:void(0)"><span>{listLeft}月</span></a>
                             </li>
                             <li className="tab" onClick={this.centerList}>
-                                <a href="#"><span>{listCenter}月</span></a>
+                                <a href="javascript:void(0)"><span>{listCenter}月</span></a>
                             </li>
                             <li className="tab" onClick={this.rightList}>
-                                <a href="#"><span>{listRight}月</span></a>
+                                <a href="javascript:void(0)"><span>{listRight}月</span></a>
                             </li>
                         </ul>
-                        <a href="#" className="next on" onClick={this.nextMonth}>向右</a>
+                        <a href="javascript:void(0)" className="next on" onClick={this.nextMonth}>向右</a>
                     </div>
                     <table>
                         <thead>
@@ -150,60 +151,13 @@ export default class Calendar extends Component {
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>1</td>
-                                <td>2</td>
-                                <td>3</td>
-                                <td>4</td>
-                                <td>5</td>
-                                <td>6</td>
-                                <td>7</td>
-                            </tr>
-                            <tr>
-                                <td>1</td>
-                                <td>2</td>
-                                <td>3</td>
-                                <td>4</td>
-                                <td>5</td>
-                                <td>6</td>
-                                <td>7</td>
-                            </tr>
-                            <tr>
-                                <td>1</td>
-                                <td>2</td>
-                                <td>3</td>
-                                <td>4</td>
-                                <td>5</td>
-                                <td>6</td>
-                                <td>7</td>
-                            </tr>
-                            <tr>
-                                <td>1</td>
-                                <td>2</td>
-                                <td>3</td>
-                                <td>4</td>
-                                <td>5</td>
-                                <td>6</td>
-                                <td>7</td>
-                            </tr>
-                            <tr>
-                                <td>1</td>
-                                <td>2</td>
-                                <td>3</td>
-                                <td>4</td>
-                                <td>5</td>
-                                <td>6</td>
-                                <td>7</td>
-                            </tr>
-                            <tr>
-                                <td>1</td>
-                                <td>2</td>
-                                <td>3</td>
-                                <td>4</td>
-                                <td>5</td>
-                                <td>6</td>
-                                <td>7</td>
-                            </tr>
+                            {days.map((week, index) => {
+                                return <tr key={week[index]+index}>
+                                    {week.map((day, index2) => {
+                                        return <td key={day.data+index+index2} date={day.data}></td>
+                                    })}
+                                </tr>
+                            })}
                         </tbody>
                     </table>
                 </div>
@@ -216,31 +170,31 @@ export default class Calendar extends Component {
 
 
 
-  /* <ul className="calendars_daysWrap">
-                        <li className="calendars_days disabled"></li>
-                        <li className="calendars_days hasData">
-                            <div className="date">
-                                <span className="num">1</span>
-                                <span className="weekday">星期四</span>
-                            </div>
-                            <span className="status">候補</span>
-                            <span className="sell">可賣：0</span>
-                            <span className="group">團位：0</span>
-                            <span className="tip"><i className="ic-ln productreferf"></i>保證出團</span>
-                            <span className="price">$4,999</span>
-                        </li>
-                        <li className="calendars_days hasData">
-                            <div className="date">
-                                <span className="num">1</span>
-                                <span className="weekday">星期五</span>
-                            </div>
-                            <span className="status">候補</span>
-                            <span className="sell">可賣：0</span>
-                            <span className="group">團位：0</span>
-                            <span className="tip"><i className="ic-ln productreferf"></i>保證出團</span>
-                            <span className="price">$4,999</span>
-                        </li>
-                    </ul> */
+/* <ul className="calendars_daysWrap">
+                      <li className="calendars_days disabled"></li>
+                      <li className="calendars_days hasData">
+                          <div className="date">
+                              <span className="num">1</span>
+                              <span className="weekday">星期四</span>
+                          </div>
+                          <span className="status">候補</span>
+                          <span className="sell">可賣：0</span>
+                          <span className="group">團位：0</span>
+                          <span className="tip"><i className="ic-ln productreferf"></i>保證出團</span>
+                          <span className="price">$4,999</span>
+                      </li>
+                      <li className="calendars_days hasData">
+                          <div className="date">
+                              <span className="num">1</span>
+                              <span className="weekday">星期五</span>
+                          </div>
+                          <span className="status">候補</span>
+                          <span className="sell">可賣：0</span>
+                          <span className="group">團位：0</span>
+                          <span className="tip"><i className="ic-ln productreferf"></i>保證出團</span>
+                          <span className="price">$4,999</span>
+                      </li>
+                  </ul> */
 
 
 
