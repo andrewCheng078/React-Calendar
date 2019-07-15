@@ -3,11 +3,12 @@ import './Calendar.scss';
 import moment from 'moment';
 import jsonData from '../../data/data5.json';
 
-
+moment.suppressDeprecationWarnings = true;
 export default class Calendar extends Component {
 
     state = {
         initYearMonth: moment().format("YYYYMM") || this.props.initYearMonth,
+        dataSource: '',
         firstDayWeek: '',
         endDayWeek: '',
         daysInMonth: '',
@@ -16,9 +17,30 @@ export default class Calendar extends Component {
         listLeft: '',
         listCenter: '',
         listRight: '',
-        year:'',
-        month:'',
+        year: '',
+        month: '',
+        modeClass: true,
+        activeId:NaN,
 
+    }
+    initData = () => {
+        //check init data month
+
+    }
+    dataSourceCheck = () => {
+        let dataSource = this.props.dataSource;
+        if (dataSource === []) {
+            this.setState({ dataSource: dataSource })
+        } else {
+
+            // const regex = '';
+            // if (dataSource === regex) {
+            //     //do somehing
+            // } else {
+            //     alert('noooo')
+            // }
+            //regex do some thing and setState
+        }
     }
 
     finishData = (data) => {
@@ -35,27 +57,28 @@ export default class Calendar extends Component {
         console.log(data);
         this.setState({
             days: allArray,
-            data:[],
+            data: [],
         })
 
     }
-    
+
 
     filterData = () => {
         let { year, data, month } = this.state;
+        
         //拿出當年當月的資料
-        const result = jsonData.filter((json,index)=>{
-             return  json.date.split("").slice(0,4).join('') === year && json.date.split("").slice(5,7).join('') === month
+        const result = jsonData.filter((json, index) => {
+            return json.date.split("").slice(0, 4).join('') === year && json.date.split("").slice(5, 7).join('') === month
         })
         //過濾掉重複的資料
         const set = new Set();
-        let newResult =  result.filter(item => !set.has(item.date) ? set.add(item.date) : false);
+        let newResult = result.filter(item => !set.has(item.date) ? set.add(item.date) : false);
         //把過濾好的資料塞進正式data裡面準備render
-        for(let i=0;i<newResult.length;i++){
-            for(let j=0;j<data.length;j++){
-                let resultDate = newResult[i].date.split("").slice(8,10).join('');
-                let dataDate = data[j].date.split("").slice(7,9).join('');
-                if(resultDate===dataDate){
+        for (let i = 0; i < newResult.length; i++) {
+            for (let j = 0; j < data.length; j++) {
+                let resultDate = newResult[i].date.split("").slice(8, 10).join('');
+                let dataDate = data[j].date.split("").slice(7, 9).join('');
+                if (resultDate === dataDate) {
                     data[j].data = 'Data';
                     data[j].guaranteed = newResult[i].guaranteed;
                     data[j].price = newResult[i].price;
@@ -70,13 +93,13 @@ export default class Calendar extends Component {
     }
 
     createDays = async () => {
-        const { firstDayWeek, daysInMonth,data,initYearMonth } = this.state;
+        const { firstDayWeek, daysInMonth, data, initYearMonth } = this.state;
 
         for (let i = 1; i <= daysInMonth; i++) {
             data.push({
                 data: "noData",
-                date:moment(`${initYearMonth}${i}`,'YYYYMMDD').format('YYYY/M/D'),
-                index:i,
+                date: moment(`${initYearMonth}${i}`, 'YYYYMMDD').format('YYYY/M/D'),
+                index: i,
                 guaranteed: false,
                 price: 0,
                 availableVancancy: 0,
@@ -111,7 +134,7 @@ export default class Calendar extends Component {
             })
         }
         this.setState({
-            data:data,
+            data: data,
         })
     }
 
@@ -132,7 +155,7 @@ export default class Calendar extends Component {
     leftList = () => { this.prevMonth() }
     centerList = () => { /*center*/ }
     rightList = () => { this.nextMonth() }
-    
+
     listValue = () => {
         this.setState({
             listLeft: moment(this.state.initYearMonth, "YYYYMM").add(-1, "M").format("YYYY M"),
@@ -152,26 +175,46 @@ export default class Calendar extends Component {
             initYearMonth: newDay,
             firstDayWeek: firstDayWeek,
             daysInMonth: daysInMonth,
-            year:year,
-            month:month
+            year: year,
+            month: month
         })
     }
 
-    async  componentDidMount() {
+    changeMode = () => {
+        //changeMode
+        const modeClass = this.state.modeClass;
+        this.setState({ modeClass: !modeClass })
+    }
+    activeClass = (e) => {
+      
+        this.setState({
+            activeId:e.currentTarget.id
+        })
+    }
+    resetData = () => {
+        //resetData
+    }
+    destroy = () => {
+        //destroy
+    }
+ 
+    async componentDidMount() {
+        await this.dataSourceCheck();
+        await this.initData();
         await this.updateDayInfo(0);
         await this.listValue();
-        await this.createDays(); 
+        await this.createDays();
         await this.filterData();
     }
 
 
     render() {
-        const { listLeft, listCenter, listRight, days } = this.state;
+        const { listLeft, listCenter, listRight, days, modeClass, activeId } = this.state;
         return (
             <div>
                 {/* 可加上這兩個修飾符來切換日曆模式或列表模式 calendars_daymode,calendars_listmode */}
-                <div className="calendars calendars_daymode">
-                    <a href="javascript:void(0)" className="prev on" style={{ float: 'right' }}>切換模式</a>
+                <div className={`calendars ${modeClass ? 'calendars_daymode' : 'calendars_listmode'}`}>
+                    <a href="javascript:void(0)" className="prev on" onClick={this.changeMode} style={{ float: 'right' }}>切換模式</a>
                     <div className="calendars_tabWrap">
                         <a href="javascript:void(0)" className="prev on" onClick={this.prevMonth}>{`<`}</a>
                         <ul className="ntb_tab">
@@ -201,23 +244,25 @@ export default class Calendar extends Component {
                         </thead>
                         <tbody>
                             {days.map((week, index) => {
-                                return <tr key={week[index]+index}>
+                                return <tr key={week[index] + index}>
                                     {week.map((day, index2) => {
                                         return (
-                                        <td key={day.index+index+index2} date={day.index} guaranteed={day.guaranteed?'成團':''}
-                                        className={`${day.index === ''?'disable':''}` }>
-                                            {day.data==='noData'?'' :(
-                                            <div className={`day js_day ${day.index ===""?'none':''}`}>
-                                                    <div className="details js_details">
-                                                        <span className={`status js_status ${day.status==="報名"?'status_org':'status_green'}`}>{day.status}</span>
-                                                        <span className="sell">可賣: <i className="js_sell">{day.availableVancancy}</i></span>
-                                                        <span className="group">團位: <i className="js_group">{day.totalVacnacy}</i></span>
-                                                        <span className="price js_price">${day.price}</span>
-                                                    </div>
-                                                </div> )
-                                        }
-                                            
-                                        </td>)
+                                            <td key={day.index + index + index2} id={day.index} date={day.index} guaranteed={day.guaranteed ? '成團' : ''}
+                                                className={`${day.index === '' ? 'disable' : ''} 
+                                                ${+activeId===+day.index&&day.data !== 'noData'&&day.index !== ""?`active`:''} `}
+                                                onClick={this.activeClass}>
+                                                {day.data === 'noData' ? '' : (
+                                                    <div className={`day js_day ${day.index === "" ? 'none' : ''}`}>
+                                                        <div className="details js_details">
+                                                            <span className={`status js_status ${day.status === "報名" ? 'status_org' : 'status_green'}`}>{day.status}</span>
+                                                            <span className="sell">可賣: <i className="js_sell">{day.availableVancancy}</i></span>
+                                                            <span className="group">團位: <i className="js_group">{day.totalVacnacy}</i></span>
+                                                            <span className="price js_price">${day.price}</span>
+                                                        </div>
+                                                    </div>)
+                                                }
+
+                                            </td>)
                                     })}
                                 </tr>
                             })}
