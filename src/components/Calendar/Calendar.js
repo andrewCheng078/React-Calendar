@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import './Calendar.scss';
 import moment from 'moment';
-import jsonData from '../../data/data5.json';
 
 moment.suppressDeprecationWarnings = true;
 export default class Calendar extends Component {
@@ -28,12 +27,11 @@ export default class Calendar extends Component {
         // 輸入一開始要在哪一個月份 [string] YYYYMM，若輸入的年月沒有資料，
         // 就要找相近的年月，若前一個月後一個月都有資料，就顯示資料比數比較多的那一個月
         const { initYearMonth, dataSource } = this.state;
-        const initDay = Date.parse(moment(initYearMonth, "YYYYMM").format(`YYYY/MM`))
-        const newData = dataSource.sort((a, b) => {
-            return Date.parse(a.date) - Date.parse(b.date)
-        });
+        const initDay = Date.parse(moment(initYearMonth, "YYYYMM").format(`YYYY/MM`));
 
 
+
+        //https://stackoverflow.com/questions/8584902/get-closest-number-out-of-array
         function closest(num, arr) {
             var curr = Date.parse(arr[0].date);
             var diff = Math.abs(num - curr);
@@ -47,7 +45,12 @@ export default class Calendar extends Component {
             }
             return currentobj;
         }
-        const closestDate = closest(initDay, dataSource)
+        const closestDate = closest(initDay, dataSource);
+        console.log(closestDate)
+        // const newDate = dataSource.filter((item => {
+        //     return 
+        // });
+
         const initCloseDate = moment(closestDate.date, "YYYYMMDD").format("YYYYMM");
 
         this.setState({
@@ -64,19 +67,34 @@ export default class Calendar extends Component {
         //如果當月沒有資料,排序資料的月份後將月曆月份初始化到有資料的那一個月
 
     }
+    fetchData = (url) => {
+        //ajax
+        fetch(url,{method: 'get'})
+            .then((response) => {
+                // 這裡會得到一個 ReadableStream 的物件
+                console.log(response);
+                // 可以透過 blob(), json(), text() 轉成可用的資訊
+                return response.json()
+            }).then((jsonData) => {
+                console.log(jsonData);
+            })
+
+            
+    }
+
     dataSourceCheck = () => {
         let dataSource = this.props.dataSource;
 
+        if (typeof dataSource === 'string') {
+            //1. regex url
+            //2. call fetch
+            
+            if (true) {
+                this.fetchData(dataSource)
+            }
 
-        // const regex = '';
-        // if (dataSource === regex) {
-        //     //do somehing call ajax and setData to dataSource
-        // } else {
-        //     alert('noooo')
-        // }
-        //regex do something and call ajax setState
-
-
+            //dataSource = response
+        }
 
         if (Array.isArray(dataSource)) {
             const checkJson = dataSource[0].guaranteed === undefined && dataSource[0].availableVancancy === undefined && dataSource[0].totalVacnacy === undefined;
@@ -117,7 +135,7 @@ export default class Calendar extends Component {
                 newArray = [];
             }
         }
-        console.log(data);
+        console.log('allArray[0].date',allArray[0][0].date);
         this.setState({
             days: allArray,
             data: [],
@@ -266,6 +284,10 @@ export default class Calendar extends Component {
     destroy = () => {
         //destroy
     }
+    addData = () => {
+        //addData
+        // 加資料時如果有相同日期的資料，以後輸入為主，輸入時如果輸入沒有的月份，模組會加上該月份
+    }
 
     async componentDidMount() {
         await this.dataSourceCheck();
@@ -313,12 +335,17 @@ export default class Calendar extends Component {
                         </thead>
                         <tbody>
                             {days.map((week, index) => {
-                                return <tr key={week[index] + index}>
+                                console.log('week',week[index]);
+                                return <tr key={week[index] + index} className={`
+                                ${ week[0] === 'noData'?'trHide':null }`
+                                
+                                }>
                                     {week.map((day, index2) => {
                                         return (
                                             <td key={day.index + index + index2} id={day.index} date={day.index} guaranteed={day.guaranteed ? '成團' : ''}
                                                 className={`${day.index === '' ? 'disable' : ''} 
-                                                ${+activeId === +day.index && day.data !== 'noData' && day.index !== "" ? `active` : ''} `}
+                                                ${+activeId === +day.index && day.data !== 'noData' && day.index !== "" ? `active` : ''} 
+                                                ${day.data==="noData" ? "noData" :null}` }
                                                 onClick={this.activeClass}>
                                                 {day.data === 'noData' ? '' : (
                                                     <div className={`day js_day ${day.index === "" ? 'none' : ''}`}>
@@ -328,7 +355,19 @@ export default class Calendar extends Component {
                                                             <span className="group">團位: <i className="js_group">{day.totalVacnacy}</i></span>
                                                             <span className="price js_price">${day.price}</span>
                                                         </div>
-                                                    </div>)
+                                                        <div className="m_info">
+                                                            <div className="left">
+                                                               left
+                                                            </div>
+                                                            <div className="middle">
+                                                                middle
+                                                            </div>
+                                                            <div className="right">
+                                                                right
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    )
                                                 }
 
                                             </td>)
