@@ -7,7 +7,7 @@ moment.suppressDeprecationWarnings = true;
 export default class Calendar extends Component {
 
     state = {
-        initYearMonth: moment().format("YYYYMM") || this.props.initYearMonth,
+        initYearMonth: this.props.initYearMonth || moment().format("YYYYMM"),
         dataSource: '',
         firstDayWeek: '',
         endDayWeek: '',
@@ -20,30 +20,93 @@ export default class Calendar extends Component {
         year: '',
         month: '',
         modeClass: true,
-        activeId:NaN,
+        activeId: NaN,
 
     }
+
     initData = () => {
-        //check init data month
+        // 輸入一開始要在哪一個月份 [string] YYYYMM，若輸入的年月沒有資料，
+        // 就要找相近的年月，若前一個月後一個月都有資料，就顯示資料比數比較多的那一個月
+        const { initYearMonth, dataSource } = this.state;
+        const initDay = Date.parse(moment(initYearMonth, "YYYYMM").format(`YYYY/MM`))
+        const newData = dataSource.sort((a, b) => {
+            return Date.parse(a.date) - Date.parse(b.date)
+        });
+
+
+        function closest(num, arr) {
+            var curr = Date.parse(arr[0].date);
+            var diff = Math.abs(num - curr);
+            for (var val = 0; val < arr.length; val++) {
+                var newdiff = Math.abs(num - Date.parse(arr[val].date));
+                if (newdiff < diff) {
+                    diff = newdiff;
+                    curr = Date.parse(arr[val].date);
+                    var currentobj = arr[val]
+                }
+            }
+            return currentobj;
+        }
+        const closestDate = closest(initDay, dataSource)
+        const initCloseDate = moment(closestDate.date, "YYYYMMDD").format("YYYYMM");
+
+        this.setState({
+            initYearMonth: initCloseDate
+        })
+
+
+
+        //統一時間格式YYYY/MM 方便用於原生換算秒數
+        // const initDay = moment(initYearMonth,"YYYYMM").format(`YYYY/MM`);
+        // const newDataDay =moment(Date.parse(newData[0].date)).format(`YYYY/MM`);
+        //找出最接近資料當月
+        // console.log(moment(initYearMonth,"YYYYMM").format(`YYYY/MM`),newDataDay)
+        //如果當月沒有資料,排序資料的月份後將月曆月份初始化到有資料的那一個月
 
     }
     dataSourceCheck = () => {
         let dataSource = this.props.dataSource;
-        if (dataSource === []) {
-            this.setState({ dataSource: dataSource })
-        } else {
 
-            // const regex = '';
-            // if (dataSource === regex) {
-            //     //do somehing
-            // } else {
-            //     alert('noooo')
-            // }
-            //regex do some thing and setState
+
+        // const regex = '';
+        // if (dataSource === regex) {
+        //     //do somehing call ajax and setData to dataSource
+        // } else {
+        //     alert('noooo')
+        // }
+        //regex do something and call ajax setState
+
+
+
+        if (Array.isArray(dataSource)) {
+            const checkJson = dataSource[0].guaranteed === undefined && dataSource[0].availableVancancy === undefined && dataSource[0].totalVacnacy === undefined;
+            if (checkJson) {
+                //轉換 for...
+                for (let i = 0; i < dataSource.length; i++) {
+
+                    dataSource[i]["guaranteed"] = dataSource[i]["certain"];
+                    delete dataSource[i]["certain"];
+
+                    dataSource[i]["availableVancancy"] = dataSource[i]["onsell"];
+                    delete dataSource[i]["onsell"];
+
+                    dataSource[i]["totalVacnacy"] = dataSource[i]["total"];
+                    delete dataSource[i]["total"];
+
+                    dataSource[i]["status"] = dataSource[i]["state"];
+                    delete dataSource[i]["state"];
+                }
+            }
         }
+        //資料格式過濾後才setState
+        this.setState({
+            dataSource: dataSource,
+        })
+
     }
 
     finishData = (data) => {
+        //把處理好的資料轉換成render的格式
         let newArray = [];
         let allArray = [];
 
@@ -64,20 +127,27 @@ export default class Calendar extends Component {
 
 
     filterData = () => {
-        let { year, data, month } = this.state;
-        
+        let { year, data, month, dataSource } = this.state;
+
         //拿出當年當月的資料
-        const result = jsonData.filter((json, index) => {
+        const result = dataSource.filter((json, index) => {
             return json.date.split("").slice(0, 4).join('') === year && json.date.split("").slice(5, 7).join('') === month
         })
+        console.log('當月的資料', result);
         //過濾掉重複的資料
         const set = new Set();
         let newResult = result.filter(item => !set.has(item.date) ? set.add(item.date) : false);
+        console.log('當月的資料過濾後', newResult)
         //把過濾好的資料塞進正式data裡面準備render
         for (let i = 0; i < newResult.length; i++) {
             for (let j = 0; j < data.length; j++) {
-                let resultDate = newResult[i].date.split("").slice(8, 10).join('');
-                let dataDate = data[j].date.split("").slice(7, 9).join('');
+
+                // let resultDate = newResult[i].date.split("").slice(8,10).join('');
+                // let dataDate = data[j].date.split("").slice(8,10).join('');
+                //改用格式化時間來比對
+                let resultDate = Date.parse(newResult[i].date)
+                let dataDate = Date.parse(data[j].date)
+
                 if (resultDate === dataDate) {
                     data[j].data = 'Data';
                     data[j].guaranteed = newResult[i].guaranteed;
@@ -88,7 +158,7 @@ export default class Calendar extends Component {
                 }
             }
         }
-
+        console.log('data', data);
         this.finishData(data);
     }
 
@@ -98,7 +168,7 @@ export default class Calendar extends Component {
         for (let i = 1; i <= daysInMonth; i++) {
             data.push({
                 data: "noData",
-                date: moment(`${initYearMonth}${i}`, 'YYYYMMDD').format('YYYY/M/D'),
+                date: moment(`${initYearMonth}`, 'YYYYMM').format(`YYYY/MM/${i}`),
                 index: i,
                 guaranteed: false,
                 price: 0,
@@ -159,7 +229,7 @@ export default class Calendar extends Component {
     listValue = () => {
         this.setState({
             listLeft: moment(this.state.initYearMonth, "YYYYMM").add(-1, "M").format("YYYY M"),
-            listCenter: this.state.initYearMonth,
+            listCenter: moment(this.state.initYearMonth, "YYYYMM").add(0, "M").format("YYYY M"),
             listRight: moment(this.state.initYearMonth, "YYYYMM").add(+1, "M").format("YYYY M"),
         })
     }
@@ -169,8 +239,8 @@ export default class Calendar extends Component {
         const newDay = moment(initYearMonth, "YYYYMM").add(operation, "M").format("YYYYMM");
         const firstDayWeek = moment(newDay, "YYYYMM").startOf('month').format('d');
         const daysInMonth = moment(newDay).daysInMonth();
-        const year = moment(initYearMonth, "YYYYMM").format("YYYY");
-        const month = moment(initYearMonth, "YYYYMM").format("MM");
+        const year = moment(newDay, "YYYYMM").format("YYYY");
+        const month = moment(newDay, "YYYYMM").format("MM");
         this.setState({
             initYearMonth: newDay,
             firstDayWeek: firstDayWeek,
@@ -186,9 +256,8 @@ export default class Calendar extends Component {
         this.setState({ modeClass: !modeClass })
     }
     activeClass = (e) => {
-      
         this.setState({
-            activeId:e.currentTarget.id
+            activeId: e.currentTarget.id
         })
     }
     resetData = () => {
@@ -197,7 +266,7 @@ export default class Calendar extends Component {
     destroy = () => {
         //destroy
     }
- 
+
     async componentDidMount() {
         await this.dataSourceCheck();
         await this.initData();
@@ -249,7 +318,7 @@ export default class Calendar extends Component {
                                         return (
                                             <td key={day.index + index + index2} id={day.index} date={day.index} guaranteed={day.guaranteed ? '成團' : ''}
                                                 className={`${day.index === '' ? 'disable' : ''} 
-                                                ${+activeId===+day.index&&day.data !== 'noData'&&day.index !== ""?`active`:''} `}
+                                                ${+activeId === +day.index && day.data !== 'noData' && day.index !== "" ? `active` : ''} `}
                                                 onClick={this.activeClass}>
                                                 {day.data === 'noData' ? '' : (
                                                     <div className={`day js_day ${day.index === "" ? 'none' : ''}`}>
