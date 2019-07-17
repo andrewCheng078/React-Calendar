@@ -84,6 +84,9 @@ export default class Calendar extends Component {
         const anotherMonthCount =  dataSource.filter((data)=>{
             return +moment(data.date, "YYYY/MM/DD").format("YYYYMM") ==  moment(initYearMonth, "YYYYMM").add(+diffMonth, "M").format("YYYYMM");
         })
+        this.setState({
+            dataSourceTmp:dataSource
+        })
         //找另一個方向的相差月份比資料數量
         console.log('closestDateCount', closestDateCount)
         console.log('anotherMonthCount',anotherMonthCount)
@@ -330,10 +333,17 @@ export default class Calendar extends Component {
 
     }
   nextHaveDataMonth =  async () => {
+      const {dataSourceTmp,initYearMonth} = this.state;
+    const hasData = dataSourceTmp.filter((data)=>{
+        return +moment(data.date, "YYYY/MM/DD").format("YYYYMM") ==  moment(initYearMonth, "YYYYMM").format("YYYYMM");
+    })
+    while(hasData.length === 0){
         await  this.nextMonth();
         await this.initData();
         await this.createDays();
         await this.filterData();
+    }
+      //如果hasdata的長度!=
     }
 
     resetData = async (addNewData) => {
