@@ -43,7 +43,7 @@ export default class Calendar extends Component {
         console.log('data',dataSource);
 
         
-
+        //處理找相近月的邏輯
         //https://stackoverflow.com/questions/8584902/get-closest-number-out-of-array
         function closest(num, arr) {
             var curr = Date.parse(arr[0].date);
@@ -87,11 +87,12 @@ export default class Calendar extends Component {
         //找另一個方向的相差月份比資料數量
         console.log('closestDateCount', closestDateCount)
         console.log('anotherMonthCount',anotherMonthCount)
+
         let initCloseDate = '';
 
         if(closestDateCount>anotherMonthCount){
             initCloseDate = closestDateFormat;
-        }else if(closestDateCount==anotherMonthCount){
+        }else if(closestDateCount===anotherMonthCount){ //如果比較的兩個月資料數一樣,找前面一個月
             initCloseDate = closestDateFormat;
         }else{
             initCloseDate = moment(initYearMonth, "YYYYMM").add(+diffMonth, "M").format("YYYYMM");
@@ -328,8 +329,11 @@ export default class Calendar extends Component {
     prevHaveDataMonth = () => {
 
     }
-    nextHaveDataMonth = () => {
-
+  nextHaveDataMonth =  async () => {
+        await  this.nextMonth();
+        await this.initData();
+        await this.createDays();
+        await this.filterData();
     }
 
     resetData = async (addNewData) => {

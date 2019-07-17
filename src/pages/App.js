@@ -29,6 +29,9 @@ export default class App extends Component {
       destroy:! destroy
     })
   }
+  nextMonth(){
+    this.calendarRef.current.nextHaveDataMonth();
+  }
 
   componentDidMount(){
 
