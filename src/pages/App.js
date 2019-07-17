@@ -5,37 +5,46 @@ export default class App extends Component {
   constructor(){
     super();
     this.state={
-
+      destroy:true,
     }
     this.calendarRef=React.createRef();
   }
 
   addData(data){
     // addData
+    this.calendarRef.current.addData(data);
   }
   switch(event){
     //switch
+    this.calendarRef.current.changeMode();
   }
-  resetData(){
+  resetData(data){
     //resetData
+    this.calendarRef.current.resetData(data);
   }
   destroy(){
     //destroy
+    const destroy = this.state.destroy;
+    this.setState({
+      destroy:! destroy
+    })
   }
 
   componentDidMount(){
 
   }
-
+//http://localhost:3000/data
   render() {
+    const {destroy}=this.state;
     return (
       <div>
-          <Calendar
+        {destroy?<Calendar
           ref={ this.calendarRef }
-          dataSource={ jsonData }
-          initYearMonth={ `201907` }
-          dataKeySetting={ false }
-          />
+          // dataSource={ jsonData }
+          dataSource={ `http://127.0.0.1:3000/data` }
+          initYearMonth={ `201710` }
+          />:''}
+        
       </div>
     )
   }

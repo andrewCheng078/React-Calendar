@@ -1,7 +1,7 @@
 .calendars{
-    padding: 30px;
+    padding: 100px;
     margin: auto 0;
-    width: 50%;
+    
 }
 .calendars_tabWrap{
     width: 100%;
@@ -67,7 +67,7 @@
             border-bottom: 1px solid #f4f4f4;
             height: 85px;
             width: 14.2857%;
-            border: 2px solid #66bb3c  ;
+            border: 2px solid transparent ;
             border-style:none;
 
         }
@@ -97,9 +97,7 @@ tbody tr td:hover {
     background-color: #f8f8f8 !important;
     cursor: default;
 }
-.trHide{
-    display: none !important;
-}
+
 .js_day{
     margin-top: 22px;
     display: flex;
@@ -125,12 +123,13 @@ tbody tr td:hover {
     display: none;
 }
 .calendars_listmode {
+    color: #666;
     .calendars{
         width: 100%;
        table{
            tr{
                td{
-                   height: 110px;
+                   height: 62px;
                }
            }
        }
@@ -161,46 +160,74 @@ tbody tr td:hover {
     }
     .js_day{
         margin-top: 0px;
+        height: 100%;
     }
     .m_info{
-      display: block;
-      display: flex;
-      width: 100%;
-      .left{
-          width: 10%
+        display: block;
+        display: flex;
+        width: 100%;
+        height: 100%;
+        padding: 5px;
+      .m_left{
+        width: 17%;
+        display:flex;
+        flex-direction: column;
+        justify-content: center;
+        .m_day{
+            color: #666;
+            text-align: center;
+            font-size: 24px;
+        }
+        .m_week{
+            font-size: 16px;
+            text-align: center;
+        }
       }  
       .middle{
-          width: 70%
+         width: 58%;
+         .middle_text{
+             margin-bottom: 4%;
+         }
+         .sell{
+            display: inline-block;
+        }
+         .group{
+            display: inline-block;
+            margin-left: 20px; 
+        }
+        .group_tag{
+            line-height: 1.5;
+            display: inline-block;
+            background: #ff9600;
+            color: #fff;
+            padding: 0 5px;
+            text-align: center;
+            border-radius: 3px;
+            span{
+                color: #fff;
+            }
+        }
       }
       .right{
-          width: 20%
+          width: 25%;
+          display:flex;
+          flex-direction: column;
+          justify-content: center;
+          font-size: 24px;
+          .status{
+              text-align: right;
+          }
+          .price{
+            font-size: 21px;
+            text-align: right;
+          }
       }
+    }
+    tbody tr td:hover {
+        border: 2px solid #66bb3c ;
     }
 }
 
 .calendars_listmode table tbody td{
     
 }
-
-
-// @media (max-width:720px) {
-//     .calendars{
-//       width: 100%;
-//      table{
-//          tr{
-//              td{
-//                  height: 110px;
-//              }
-//          }
-//      }
-//     }
-    
-//     table,tr ,tbody,td{
-//       width: 100% !important;
-//       display: inline-block;
-//     }
-//     thead{
-//         display: none;
-//     }
-    
-//   }

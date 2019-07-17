@@ -1,13 +1,15 @@
 import React, { Component } from 'react'
 import './Calendar.scss';
 import moment from 'moment';
+import 'moment/locale/zh-tw';
+import testJson from '../../data/data6'; //10 noData
 
 moment.suppressDeprecationWarnings = true;
 export default class Calendar extends Component {
 
     state = {
         initYearMonth: this.props.initYearMonth || moment().format("YYYYMM"),
-        dataSource: '',
+        dataSource: testJson||this.props.dataSource,
         firstDayWeek: '',
         endDayWeek: '',
         daysInMonth: '',
@@ -20,16 +22,27 @@ export default class Calendar extends Component {
         month: '',
         modeClass: true,
         activeId: NaN,
-
+        dataDateMax:"",
+        dataDateMin:"",
+        dataSourceTmp:[],
     }
 
     initData = () => {
         // 輸入一開始要在哪一個月份 [string] YYYYMM，若輸入的年月沒有資料，
         // 就要找相近的年月，若前一個月後一個月都有資料，就顯示資料比數比較多的那一個月
+        //誰離我比較近>距離一樣>誰資料比較多
         const { initYearMonth, dataSource } = this.state;
         const initDay = Date.parse(moment(initYearMonth, "YYYYMM").format(`YYYY/MM`));
+        const dataDateMaxMin = dataSource.sort((a,b)=>{
+            return Date.parse(a.date) - Date.parse(b.date)
+        })
+        const minDate = moment(dataDateMaxMin[0].date, "YYYY/MM/DD").format(`YYYY/MM`);
+        const maxDate = moment(dataDateMaxMin[dataDateMaxMin.length-1].date, "YYYY/MM/DD").format(`YYYY/MM`);
+        console.log('maxmin',minDate,maxDate);
+        
+        console.log('data',dataSource);
 
-
+        
 
         //https://stackoverflow.com/questions/8584902/get-closest-number-out-of-array
         function closest(num, arr) {
@@ -45,19 +58,51 @@ export default class Calendar extends Component {
             }
             return currentobj;
         }
-        const closestDate = closest(initDay, dataSource);
-        console.log(closestDate)
-        // const newDate = dataSource.filter((item => {
-        //     return 
-        // });
-
-        const initCloseDate = moment(closestDate.date, "YYYYMMDD").format("YYYYMM");
-
-        this.setState({
-            initYearMonth: initCloseDate
+        const closestDate = closest(initDay,dataSource);
+        const closestDateFormat = moment(closestDate.date, "YYYYMMDD").format("YYYYMM");
+        //找出距離目標月份差幾個月來區別出資料
+        let closestDate_Year = +moment(closestDateFormat, "YYYYMM").format("YYYY");
+        let closestDate_Month = +moment(closestDateFormat, "YYYYMM").format("MM");
+        let initYearMonth_Year = +moment(initYearMonth, "YYYYMM").format("YYYY");
+        let initYearMonth_Month = +moment(initYearMonth, "YYYYMM").format("MM");
+        let diffMonth = null;
+        //比年比月
+        if( closestDate_Year === initYearMonth_Year ){
+           diffMonth = Math.abs(initYearMonth_Month - closestDate_Month);
+        }else{
+            diffMonth = Math.abs(initYearMonth_Month - closestDate_Month);
+            const diffYear = Math.abs(initYearMonth_Year - closestDate_Year);
+             //每增加一年 月份+1
+            for(let i = 0;i<diffYear;i++){
+                diffMonth+=(diffYear*12)
+            }
+       
+        }
+        const closestDateCount = dataSource.filter((data)=>{
+            return +moment(data.date, "YYYY/MM/DD").format("YYYYMM") == closestDateFormat;
         })
+        const anotherMonthCount =  dataSource.filter((data)=>{
+            return +moment(data.date, "YYYY/MM/DD").format("YYYYMM") ==  moment(initYearMonth, "YYYYMM").add(+diffMonth, "M").format("YYYYMM");
+        })
+        //找另一個方向的相差月份比資料數量
+        console.log('closestDateCount', closestDateCount)
+        console.log('anotherMonthCount',anotherMonthCount)
+        let initCloseDate = '';
 
-
+        if(closestDateCount>anotherMonthCount){
+            initCloseDate = closestDateFormat;
+        }else if(closestDateCount==anotherMonthCount){
+            initCloseDate = closestDateFormat;
+        }else{
+            initCloseDate = moment(initYearMonth, "YYYYMM").add(+diffMonth, "M").format("YYYYMM");
+        }
+        console.log(initCloseDate)
+    
+        this.setState({
+            initYearMonth: initCloseDate,
+            dataDateMax:maxDate,
+            dataDateMin:minDate,
+        })
 
         //統一時間格式YYYY/MM 方便用於原生換算秒數
         // const initDay = moment(initYearMonth,"YYYYMM").format(`YYYY/MM`);
@@ -67,35 +112,28 @@ export default class Calendar extends Component {
         //如果當月沒有資料,排序資料的月份後將月曆月份初始化到有資料的那一個月
 
     }
-    fetchData = (url) => {
-        //ajax
-        fetch(url,{method: 'get'})
-            .then((response) => {
-                // 這裡會得到一個 ReadableStream 的物件
-                console.log(response);
-                // 可以透過 blob(), json(), text() 轉成可用的資訊
-                return response.json()
-            }).then((jsonData) => {
-                console.log(jsonData);
-            })
 
-            
-    }
 
-    dataSourceCheck = () => {
-        let dataSource = this.props.dataSource;
+    dataSourceCheck = async () => {
+        let dataSource = this.state.dataSource;
 
         if (typeof dataSource === 'string') {
             //1. regex url
             //2. call fetch
-            
-            if (true) {
-                this.fetchData(dataSource)
+            //^([A-z0-9-_+]+\/)+([A-z0-9-_+]+\/) 只驗證aaaa/aaa/aa/aa/
+            const regexUrl = /^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$/.test(dataSource)
+            if (regexUrl) {
+                await fetch(dataSource, { method: 'get' })
+                    .then((response) => {
+                        // 這裡會得到一個 ReadableStream 的物件
+                     
+                        // 可以透過 blob(), json(), text() 轉成可用的資訊
+                        return response.json()
+                    }).then((jsonData) => {
+                        dataSource = jsonData;
+                    })
             }
-
-            //dataSource = response
         }
-
         if (Array.isArray(dataSource)) {
             const checkJson = dataSource[0].guaranteed === undefined && dataSource[0].availableVancancy === undefined && dataSource[0].totalVacnacy === undefined;
             if (checkJson) {
@@ -120,7 +158,6 @@ export default class Calendar extends Component {
         this.setState({
             dataSource: dataSource,
         })
-
     }
 
     finishData = (data) => {
@@ -135,7 +172,7 @@ export default class Calendar extends Component {
                 newArray = [];
             }
         }
-        console.log('allArray[0].date',allArray[0][0].date);
+
         this.setState({
             days: allArray,
             data: [],
@@ -193,6 +230,7 @@ export default class Calendar extends Component {
                 availableVancancy: 0,
                 totalVacnacy: 0,
                 status: " ",
+                weekDay: moment.weekdays(i),
             })
         }
 
@@ -205,6 +243,7 @@ export default class Calendar extends Component {
                 availableVancancy: 0,
                 totalVacnacy: 0,
                 status: " ",
+                weekDay: null,
             })
         }
 
@@ -219,6 +258,7 @@ export default class Calendar extends Component {
                 availableVancancy: 0,
                 totalVacnacy: 0,
                 status: " ",
+                weekDay: null,
             })
         }
         this.setState({
@@ -227,14 +267,20 @@ export default class Calendar extends Component {
     }
 
     prevMonth = async () => {
-        await this.updateDayInfo(-1);
+        const { initYearMonth, dataDateMin } = this.state;
+        const nowFormat = Date.parse(moment(initYearMonth, "YYYYMM").format("YYYY/MM"));
+        const minFormat = Date.parse(dataDateMin);
+        nowFormat === minFormat  ?  await this.updateDayInfo(0) : await this.updateDayInfo(-1)
         await this.listValue();
         await this.createDays();
         await this.filterData();
     }
 
     nextMonth = async () => {
-        await this.updateDayInfo(+1);
+        const { initYearMonth, dataDateMax } = this.state;
+        const nowFormat = Date.parse(moment(initYearMonth, "YYYYMM").format("YYYY/MM"));
+        const MaxFormat = Date.parse(dataDateMax);
+        nowFormat === MaxFormat  ?  await this.updateDayInfo(0) : await this.updateDayInfo(+1)
         await this.listValue();
         await this.createDays();
         await this.filterData();
@@ -252,9 +298,9 @@ export default class Calendar extends Component {
         })
     }
 
-    updateDayInfo(operation) {
-        const initYearMonth = this.state.initYearMonth;
-        const newDay = moment(initYearMonth, "YYYYMM").add(operation, "M").format("YYYYMM");
+    updateDayInfo(action) {
+        const { initYearMonth } = this.state;
+        const newDay = moment(initYearMonth, "YYYYMM").add(action, "M").format("YYYYMM");
         const firstDayWeek = moment(newDay, "YYYYMM").startOf('month').format('d');
         const daysInMonth = moment(newDay).daysInMonth();
         const year = moment(newDay, "YYYYMM").format("YYYY");
@@ -271,22 +317,48 @@ export default class Calendar extends Component {
     changeMode = () => {
         //changeMode
         const modeClass = this.state.modeClass;
-        this.setState({ modeClass: !modeClass })
+        this.setState({ modeClass:!modeClass })
     }
     activeClass = (e) => {
         this.setState({
             activeId: e.currentTarget.id
         })
     }
-    resetData = () => {
+
+    prevHaveDataMonth = () => {
+
+    }
+    nextHaveDataMonth = () => {
+
+    }
+
+    resetData = async (addNewData) => {
         //resetData
+        //回到加入資料之前
+        await this.setState({dataSource:addNewData});
+        await this.dataSourceCheck();
+        await this.initData();
+        await this.updateDayInfo(0);
+        await this.listValue();
+        await this.createDays();
+        await this.filterData();
+        console.log('addDataFunction')
     }
-    destroy = () => {
-        //destroy
-    }
-    addData = () => {
+
+    addData = async (addNewData) => {
         //addData
         // 加資料時如果有相同日期的資料，以後輸入為主，輸入時如果輸入沒有的月份，模組會加上該月份
+        const { dataSource } = this.state;
+        //加入資料後,整合所有資料,重新跑一次驗證+整理
+        const concatData =  await dataSource.concat(addNewData);
+        await this.setState({dataSource:concatData});
+        await this.dataSourceCheck();
+        await this.initData();
+        await this.updateDayInfo(0);
+        await this.listValue();
+        await this.createDays();
+        await this.filterData();
+        console.log('addDataFunction')
     }
 
     async componentDidMount() {
@@ -335,17 +407,14 @@ export default class Calendar extends Component {
                         </thead>
                         <tbody>
                             {days.map((week, index) => {
-                                console.log('week',week[index]);
-                                return <tr key={week[index] + index} className={`
-                                ${ week[0] === 'noData'?'trHide':null }`
-                                
-                                }>
+
+                                return <tr key={week[index] + index}>
                                     {week.map((day, index2) => {
                                         return (
                                             <td key={day.index + index + index2} id={day.index} date={day.index} guaranteed={day.guaranteed ? '成團' : ''}
                                                 className={`${day.index === '' ? 'disable' : ''} 
                                                 ${+activeId === +day.index && day.data !== 'noData' && day.index !== "" ? `active` : ''} 
-                                                ${day.data==="noData" ? "noData" :null}` }
+                                                ${day.data === "noData" ? "noData" : null}`}
                                                 onClick={this.activeClass}>
                                                 {day.data === 'noData' ? '' : (
                                                     <div className={`day js_day ${day.index === "" ? 'none' : ''}`}>
@@ -356,20 +425,28 @@ export default class Calendar extends Component {
                                                             <span className="price js_price">${day.price}</span>
                                                         </div>
                                                         <div className="m_info">
-                                                            <div className="left">
-                                                               left
+                                                            <div className="m_left">
+                                                                <div className="m_day">{day.index}</div>
+                                                                <div className="m_week">{day.weekDay}</div>
                                                             </div>
                                                             <div className="middle">
-                                                                middle
+                                                                <div className="middle_text">
+                                                                    <span className="sell">可賣: <i className="js_sell">{day.availableVancancy}</i></span>
+                                                                    <span className="group">團位: <i className="js_group">{day.totalVacnacy}</i></span>
+                                                                </div>
+                                                                <div className="group_tag">
+                                                                    <span>{day.guaranteed ? '成團' : ''}</span>
+                                                                </div>
+
                                                             </div>
                                                             <div className="right">
-                                                                right
+                                                                <span className={`status ${day.status === "報名" ? 'status_org' : 'status_green'}`}>{day.status}</span>
+                                                                <span className="price js_price">${day.price}</span>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    )
+                                                )
                                                 }
-
                                             </td>)
                                     })}
                                 </tr>
