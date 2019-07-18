@@ -32,6 +32,9 @@ export default class App extends Component {
   nextMonth(){
     this.calendarRef.current.nextHaveDataMonth();
   }
+  prevMonth(){
+    this.calendarRef.current. prevHaveDataMonth();
+  }
 
   componentDidMount(){
 

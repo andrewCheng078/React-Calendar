@@ -9,7 +9,7 @@ export default class Calendar extends Component {
 
     state = {
         initYearMonth: this.props.initYearMonth || moment().format("YYYYMM"),
-        dataSource: testJson||this.props.dataSource,
+        dataSource: testJson || this.props.dataSource,
         firstDayWeek: '',
         endDayWeek: '',
         daysInMonth: '',
@@ -22,9 +22,9 @@ export default class Calendar extends Component {
         month: '',
         modeClass: true,
         activeId: NaN,
-        dataDateMax:"",
-        dataDateMin:"",
-        dataSourceTmp:[],
+        dataDateMax: "",
+        dataDateMin: "",
+        dataSourceTmp: [],
     }
 
     initData = () => {
@@ -33,16 +33,15 @@ export default class Calendar extends Component {
         //誰離我比較近>距離一樣>誰資料比較多
         const { initYearMonth, dataSource } = this.state;
         const initDay = Date.parse(moment(initYearMonth, "YYYYMM").format(`YYYY/MM`));
-        const dataDateMaxMin = dataSource.sort((a,b)=>{
+        const dataDateMaxMin = dataSource.sort((a, b) => {
             return Date.parse(a.date) - Date.parse(b.date)
         })
         const minDate = moment(dataDateMaxMin[0].date, "YYYY/MM/DD").format(`YYYY/MM`);
-        const maxDate = moment(dataDateMaxMin[dataDateMaxMin.length-1].date, "YYYY/MM/DD").format(`YYYY/MM`);
-        console.log('maxmin',minDate,maxDate);
-        
-        console.log('data',dataSource);
+        const maxDate = moment(dataDateMaxMin[dataDateMaxMin.length - 1].date, "YYYY/MM/DD").format(`YYYY/MM`);
+        console.log('maxmin', minDate, maxDate);
+        console.log('data', dataSource);
 
-        
+
         //處理找相近月的邏輯
         //https://stackoverflow.com/questions/8584902/get-closest-number-out-of-array
         function closest(num, arr) {
@@ -58,7 +57,7 @@ export default class Calendar extends Component {
             }
             return currentobj;
         }
-        const closestDate = closest(initDay,dataSource);
+        const closestDate = closest(initDay, dataSource);
         const closestDateFormat = moment(closestDate.date, "YYYYMMDD").format("YYYYMM");
         //找出距離目標月份差幾個月來區別出資料
         let closestDate_Year = +moment(closestDateFormat, "YYYYMM").format("YYYY");
@@ -67,45 +66,45 @@ export default class Calendar extends Component {
         let initYearMonth_Month = +moment(initYearMonth, "YYYYMM").format("MM");
         let diffMonth = null;
         //比年比月
-        if( closestDate_Year === initYearMonth_Year ){
-           diffMonth = Math.abs(initYearMonth_Month - closestDate_Month);
-        }else{
+        if (closestDate_Year === initYearMonth_Year) {
+            diffMonth = Math.abs(initYearMonth_Month - closestDate_Month);
+        } else {
             diffMonth = Math.abs(initYearMonth_Month - closestDate_Month);
             const diffYear = Math.abs(initYearMonth_Year - closestDate_Year);
-             //每增加一年 月份+1
-            for(let i = 0;i<diffYear;i++){
-                diffMonth+=(diffYear*12)
+            //每增加一年 月份+1
+            for (let i = 0; i < diffYear; i++) {
+                diffMonth += (diffYear * 12)
             }
-       
+
         }
-        const closestDateCount = dataSource.filter((data)=>{
+        const closestDateCount = dataSource.filter((data) => {
             return +moment(data.date, "YYYY/MM/DD").format("YYYYMM") == closestDateFormat;
         })
-        const anotherMonthCount =  dataSource.filter((data)=>{
-            return +moment(data.date, "YYYY/MM/DD").format("YYYYMM") ==  moment(initYearMonth, "YYYYMM").add(+diffMonth, "M").format("YYYYMM");
+        const anotherMonthCount = dataSource.filter((data) => {
+            return +moment(data.date, "YYYY/MM/DD").format("YYYYMM") == moment(initYearMonth, "YYYYMM").add(+diffMonth, "M").format("YYYYMM");
         })
         this.setState({
-            dataSourceTmp:dataSource
+            dataSourceTmp: dataSource
         })
         //找另一個方向的相差月份比資料數量
         console.log('closestDateCount', closestDateCount)
-        console.log('anotherMonthCount',anotherMonthCount)
+        console.log('anotherMonthCount', anotherMonthCount)
 
         let initCloseDate = '';
 
-        if(closestDateCount>anotherMonthCount){
+        if (closestDateCount > anotherMonthCount) {
             initCloseDate = closestDateFormat;
-        }else if(closestDateCount===anotherMonthCount){ //如果比較的兩個月資料數一樣,找前面一個月
+        } else if (closestDateCount === anotherMonthCount) { //如果比較的兩個月資料數一樣,找前面一個月
             initCloseDate = closestDateFormat;
-        }else{
+        } else {
             initCloseDate = moment(initYearMonth, "YYYYMM").add(+diffMonth, "M").format("YYYYMM");
         }
         console.log(initCloseDate)
-    
+
         this.setState({
             initYearMonth: initCloseDate,
-            dataDateMax:maxDate,
-            dataDateMin:minDate,
+            dataDateMax: maxDate,
+            dataDateMin: minDate,
         })
 
         //統一時間格式YYYY/MM 方便用於原生換算秒數
@@ -130,7 +129,7 @@ export default class Calendar extends Component {
                 await fetch(dataSource, { method: 'get' })
                     .then((response) => {
                         // 這裡會得到一個 ReadableStream 的物件
-                     
+
                         // 可以透過 blob(), json(), text() 轉成可用的資訊
                         return response.json()
                     }).then((jsonData) => {
@@ -274,7 +273,7 @@ export default class Calendar extends Component {
         const { initYearMonth, dataDateMin } = this.state;
         const nowFormat = Date.parse(moment(initYearMonth, "YYYYMM").format("YYYY/MM"));
         const minFormat = Date.parse(dataDateMin);
-        nowFormat === minFormat  ?  await this.updateDayInfo(0) : await this.updateDayInfo(-1)
+        nowFormat === minFormat ? await this.updateDayInfo(0) : await this.updateDayInfo(-1)
         await this.listValue();
         await this.createDays();
         await this.filterData();
@@ -284,7 +283,7 @@ export default class Calendar extends Component {
         const { initYearMonth, dataDateMax } = this.state;
         const nowFormat = Date.parse(moment(initYearMonth, "YYYYMM").format("YYYY/MM"));
         const MaxFormat = Date.parse(dataDateMax);
-        nowFormat === MaxFormat  ?  await this.updateDayInfo(0) : await this.updateDayInfo(+1)
+        nowFormat === MaxFormat ? await this.updateDayInfo(0) : await this.updateDayInfo(+1)
         await this.listValue();
         await this.createDays();
         await this.filterData();
@@ -321,7 +320,7 @@ export default class Calendar extends Component {
     changeMode = () => {
         //changeMode
         const modeClass = this.state.modeClass;
-        this.setState({ modeClass:!modeClass })
+        this.setState({ modeClass: !modeClass })
     }
     activeClass = (e) => {
         this.setState({
@@ -329,27 +328,59 @@ export default class Calendar extends Component {
         })
     }
 
-    prevHaveDataMonth = () => {
+    prevHaveDataMonth = async () => {
+        let { initYearMonth,dataDateMin } = this.state;
+        const nowFormat = Date.parse(moment(initYearMonth, "YYYYMM").format("YYYY/MM"));
+        const minFormat = Date.parse(dataDateMin);
 
-    }
-  nextHaveDataMonth =  async () => {
-      const {dataSourceTmp,initYearMonth} = this.state;
-    const hasData = dataSourceTmp.filter((data)=>{
-        return +moment(data.date, "YYYY/MM/DD").format("YYYYMM") ==  moment(initYearMonth, "YYYYMM").format("YYYYMM");
-    })
-    while(hasData.length === 0){
-        await  this.nextMonth();
-        await this.initData();
+       if(nowFormat===minFormat){
+        console.log('zzzzz')
+       }else{
+        let hasData = [];
+        do {
+            await this.updateDayInfo(-1);
+            let { dataSourceTmp, initYearMonth } = this.state;
+            hasData = await dataSourceTmp.filter((data) => {
+                return +moment(data.date, "YYYY/MM/DD").format("YYYYMM") == moment(initYearMonth, "YYYYMM").format("YYYYMM");
+            })
+        } while (hasData.length === 0);
+        
+        await this.listValue();
         await this.createDays();
         await this.filterData();
+        console.log('hasdata', hasData)
+
+       }
     }
-      //如果hasdata的長度!=
+    nextHaveDataMonth = async () => {
+        let { initYearMonth,dataDateMax } = this.state;
+        const nowFormat = Date.parse(moment(initYearMonth, "YYYYMM").format("YYYY/MM"));
+        const MaxFormat = Date.parse(dataDateMax);
+
+       if(nowFormat===MaxFormat){
+        console.log('zzzzz')
+       }else{
+        
+        let hasData = [];
+        do {
+            await this.updateDayInfo(+1);
+            let { dataSourceTmp, initYearMonth } = this.state;
+            hasData = await dataSourceTmp.filter((data) => {
+                return +moment(data.date, "YYYY/MM/DD").format("YYYYMM") == moment(initYearMonth, "YYYYMM").format("YYYYMM");
+            })
+        } while (hasData.length === 0);
+        
+        await this.listValue();
+        await this.createDays();
+        await this.filterData();
+        console.log('hasdata', hasData)
+       }
     }
 
     resetData = async (addNewData) => {
         //resetData
-        //回到加入資料之前
-        await this.setState({dataSource:addNewData});
+        //洗掉舊的資料留下新的
+        await this.setState({ dataSource:addNewData });
         await this.dataSourceCheck();
         await this.initData();
         await this.updateDayInfo(0);
@@ -364,8 +395,8 @@ export default class Calendar extends Component {
         // 加資料時如果有相同日期的資料，以後輸入為主，輸入時如果輸入沒有的月份，模組會加上該月份
         const { dataSource } = this.state;
         //加入資料後,整合所有資料,重新跑一次驗證+整理
-        const concatData =  await dataSource.concat(addNewData);
-        await this.setState({dataSource:concatData});
+        const concatData = await dataSource.concat(addNewData);
+        await this.setState({ dataSource: concatData });
         await this.dataSourceCheck();
         await this.initData();
         await this.updateDayInfo(0);
