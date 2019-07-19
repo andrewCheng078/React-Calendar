@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import Calendar from '../components/Calendar/Calendar';
-import jsonData from '../data/data2.json';
+import jsonData from '../data/data5.json';
 export default class App extends Component {
   constructor(){
     super();
@@ -39,16 +39,19 @@ export default class App extends Component {
   componentDidMount(){
 
   }
-//http://localhost:3000/data
+
+// use json-server api
+// json-server --watch db.json --port 3004
+//api url: http://127.0.0.1:3004/data
   render() {
-    const {destroy}=this.state;
+    const { destroy }= this.state;
     return (
       <div>
         {destroy?<Calendar
           ref={ this.calendarRef }
           // dataSource={ jsonData }
-          dataSource={ `http://127.0.0.1:3000/data` }
-          initYearMonth={ `201710` }
+          dataSource={  jsonData }
+          initYearMonth={ `201708` }
           />:''}
         
       </div>

@@ -11,6 +11,30 @@ export default [
 },
 {
     guaranteed: false,
+    date: '2017/07/25',
+    price: 85223,
+    availableVancancy: 3,
+    totalVacnacy: 317,
+    status: '截止'
+},
+{
+    guaranteed: false,
+    date: '2017/07/26',
+    price: 85223,
+    availableVancancy: 3,
+    totalVacnacy: 317,
+    status: '截止'
+},
+{
+    guaranteed: false,
+    date: '2017/07/27',
+    price: 85223,
+    availableVancancy: 3,
+    totalVacnacy: 317,
+    status: '截止'
+},
+{
+    guaranteed: false,
     date: '2017/07/12',
     price: 70729,
     availableVancancy: 77,
@@ -151,7 +175,7 @@ export default [
     price: 64973,
     availableVancancy: 55,
     totalVacnacy: 99,
-    status: '後補'
+    status: '預定'
 },
 {
     guaranteed: false,
@@ -231,7 +255,47 @@ export default [
     price: 26585,
     availableVancancy: 63,
     totalVacnacy: 229,
-    status: '後補'
+    status: '報名'
+},
+{
+    guaranteed: true,
+    date: '2018/01/21',
+    price: 26585,
+    availableVancancy: 63,
+    totalVacnacy: 229,
+    status: '報名'
+},
+{
+    guaranteed: true,
+    date: '2018/01/21',
+    price: 26585,
+    availableVancancy: 63,
+    totalVacnacy: 229,
+    status: '報名'
+},
+{
+    guaranteed: true,
+    date: '2018/01/21',
+    price: 26585,
+    availableVancancy: 63,
+    totalVacnacy: 229,
+    status: '報名'
+},
+{
+    guaranteed: true,
+    date: '2018/01/21',
+    price: 265285,
+    availableVancancy: 63,
+    totalVacnacy: 229,
+    status: '截止'
+},
+{
+    guaranteed: true,
+    date: '2018/01/21',
+    price: 265885,
+    availableVancancy: 63,
+    totalVacnacy: 229,
+    status: '預定'
 },
 {
     guaranteed: false,
