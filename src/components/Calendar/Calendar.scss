@@ -1,0 +1,229 @@
+.calendars{
+    padding-left: 50px;
+    margin: auto 0;
+    width:50%
+}
+.calendars_tabWrap{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0;
+    margin-bottom: 0;
+    white-space: nowrap;
+    font-size: 0;
+    background-color: #ede9dd;
+    overflow: hidden;
+    a{color: red;}
+    ul{
+        list-style: none;
+        display: flex;
+        flex:8;
+        li{
+            width: 33.3333%;
+            text-align: center;
+            font-size: 16px;
+            color: #666;
+            line-height: 1.25;
+            a{
+                height: 100%;
+                display: block;
+                padding: 10px;
+                margin-top: 3px;
+            }
+        }
+    }
+   
+    .active{
+        background-color: #FFF;
+    }
+}
+.calendars table{
+    width: 100%;
+    text-align: center;
+    border-collapse: collapse;
+    border-spacing: 0;
+    border: 1px solid #f4f4f4;
+
+    thead{
+        border-bottom: 1px solid #f4f4f4;
+        th{
+            line-height: 30px;
+            color: #666;
+            background-color: #fff;
+            border-top: 1px solid #f4f4f4;
+            border-bottom: 1px solid #f4f4f4;
+        }
+    }
+    tbody{position: relative;}
+    .active{
+        border: 2px solid #66bb3c ;
+        background-color: #fff9e3;
+    }
+    tr{
+        td{
+            position: relative;
+            border-left: 1px solid #f4f4f4;
+            border-bottom: 1px solid #f4f4f4;
+            height: 85px;
+            width: 14.2857%;
+            border: 2px solid transparent ;
+            border-style:none;
+
+        }
+        td:after{
+            position: absolute;
+            content:  attr(date);
+            top: 2px;
+            left: 2px;
+            color: #444;
+        }
+        td:before{
+            position: absolute;
+            content:  attr(guaranteed);
+            top: 2px;
+            right: 2px;
+            color: #fff;
+            text-align: center;
+            line-height: 20px;
+            background-color: #fe8400;
+        }
+    }
+}
+tbody tr td:hover {
+    background-color: #fff9e3;
+}
+.disable{
+    background-color: #f8f8f8 !important;
+    cursor: default;
+}
+
+.js_day{
+    margin-top: 22px;
+    display: flex;
+    justify-content: flex-start;
+    text-align: left;
+    span{
+        display: block;
+    }
+    .price{
+        color: #e10500;
+    }
+    .status_green{
+        color: #1c9c9d;
+    }
+    .status_org{
+        color:#fe8400;
+    }
+}
+.none{
+    display: none;
+}
+.m_info{
+    display: none;
+}
+.calendars_listmode {
+    color: #666;
+    .calendars{
+        width: 100%;
+       table{
+           tr{
+               td{
+                   height: 62px;
+               }
+           }
+       }
+      }
+      
+      table,tr ,tbody,td{
+        width: 100% !important;
+        display: inline-block;
+      }
+      tr{float: left;}
+      thead{
+          display: none;
+      }
+      .disable{
+       display: none;
+    }
+    .noData{
+        display: none;
+    }
+    .js_details{
+        display: none;
+    }
+    td:after{
+       display: none;
+    }
+    td:before{
+       display: none;
+    }
+    .js_day{
+        margin-top: 0px;
+        height: 100%;
+    }
+    .m_info{
+        display: block;
+        display: flex;
+        width: 100%;
+        height: 100%;
+        padding: 5px;
+      .m_left{
+        width: 17%;
+        display:flex;
+        flex-direction: column;
+        justify-content: center;
+        .m_day{
+            color: #666;
+            text-align: center;
+            font-size: 24px;
+        }
+        .m_week{
+            font-size: 16px;
+            text-align: center;
+        }
+      }  
+      .middle{
+         width: 58%;
+         .middle_text{
+             margin-bottom: 4%;
+         }
+         .sell{
+            display: inline-block;
+        }
+         .group{
+            display: inline-block;
+            margin-left: 20px; 
+        }
+        .group_tag{
+            line-height: 1.5;
+            display: inline-block;
+            background: #ff9600;
+            color: #fff;
+            padding: 0 5px;
+            text-align: center;
+            border-radius: 3px;
+            span{
+                color: #fff;
+            }
+        }
+      }
+      .right{
+          width: 25%;
+          display:flex;
+          flex-direction: column;
+          justify-content: center;
+          font-size: 24px;
+          .status{
+              text-align: right;
+          }
+          .price{
+            font-size: 21px;
+            text-align: right;
+          }
+      }
+    }
+    tbody tr td:hover {
+        border: 2px solid #66bb3c ;
+    }
+}
