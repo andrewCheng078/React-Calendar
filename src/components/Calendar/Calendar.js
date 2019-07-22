@@ -58,9 +58,18 @@ export default class Calendar extends Component {
             }
             return currentobj;
         }
-        const closestDate = findClosestMonth(initDay, dataSource);
-        console.log(findClosestMonth(initDay, dataSource));
-        const closestDateFormat = moment(closestDate.date, "YYYYMMDD").format("YYYYMM");
+
+
+        let closestDate = findClosestMonth(initDay, dataSource);
+        let closestDateFormat = null;
+        console.log('closeDate !!',findClosestMonth(initDay, dataSource));
+        if(closestDate===undefined){
+            closestDate = minDate
+            closestDateFormat = moment(closestDate, "YYYY/MM").format("YYYYMM");
+        }else{
+            closestDateFormat = moment(closestDate.date, "YYYYMMDD").format("YYYYMM");
+        }
+       
         //找出距離目標月份差幾個月來區別出資料
         let closestDate_Year = +moment(closestDateFormat, "YYYYMM").format("YYYY");
         let closestDate_Month = +moment(closestDateFormat, "YYYYMM").format("MM");
@@ -71,25 +80,58 @@ export default class Calendar extends Component {
         if (closestDate_Year === initYearMonth_Year) {
             diffMonth = Math.abs(initYearMonth_Month - closestDate_Month);
         } else {
+            
             diffMonth = Math.abs(initYearMonth_Month - closestDate_Month);
-            const diffYear = Math.abs(initYearMonth_Year - closestDate_Year);
-            //每增加一年 月份+1
-            for (let i = 0; i < diffYear; i++) {
-                diffMonth -= (diffYear * 12)
-            }
+            const diffYear = Math.abs(+initYearMonth_Year - +closestDate_Year);
+            console.log('diffYear',diffYear);
+            console.log(' diffMonth', diffMonth)
+            if(+initYearMonth_Year>+closestDate_Year){
+            //    if(diffYear===1){
+            //     diffMonth = diffMonth-12
+            //    }
+            //    if(diffYear===2){
+            //     diffMonth = diffMonth-24
+            //    }
+            //    if(diffYear===3){
+            //     diffMonth = diffMonth-36
+            //    }
+            //    if(diffYear===4){
+            //     diffMonth = diffMonth-48
+            //    }
+              diffMonth -= (diffYear * 12)
+            
+          }else{
+                  diffMonth += (diffYear * 12)
+          }
+
+            // if(+initYearMonth_Year>+closestDate_Year){
+            //       for (let i = 0; i < diffYear; i++) {
+            //     diffMonth -= (diffYear * 12)
+            //     console.log('forMonth',diffMonth)
+            //     }
+            // }else{
+            //     for (let i = 0; i < diffYear; i++) {
+            //         diffMonth += (diffYear * 12)
+            //         }
+            // }
+            // 每增加一年 月份+1
+            // for (let i = 0; i < diffYear; i++) {
+            //     diffMonth -= (diffYear * 12)
+            // }
 
         }
+        console.log('diffMonth',diffMonth)
         let anotherMonthCount = []
         const closestDateCount = dataSource.filter((data) => {
             return +moment(data.date, "YYYY/MM/DD").format("YYYYMM") == closestDateFormat;
         })
         if (Date.parse(initYearMonth) > Date.parse(closestDateFormat)) {
              anotherMonthCount = dataSource.filter((data) => {
-                return +moment(data.date, "YYYY/MM/DD").format("YYYYMM") == moment(initYearMonth, "YYYYMM").add(+diffMonth, "M").format("YYYYMM");
+                return +moment(data.date, "YYYY/MM/DD").format("YYYYMM") == moment(initYearMonth, "YYYYMM").add(diffMonth, "M").format("YYYYMM");
             })
         } else {
              anotherMonthCount = dataSource.filter((data) => {
-                return +moment(data.date, "YYYY/MM/DD").format("YYYYMM") == moment(initYearMonth, "YYYYMM").add(-diffMonth, "M").format("YYYYMM");
+                return +moment(data.date, "YYYY/MM/DD").format("YYYYMM") == moment(initYearMonth, "YYYYMM").add(diffMonth, "M").format("YYYYMM");
             })
         }
 
@@ -115,11 +157,11 @@ export default class Calendar extends Component {
         //如果過期的資料數量比較多,顯示另一筆一比可銷售的資料
         //秀恩提醒,不該給消費者看不能購買的"商品",應顯示未過期且可購買的月份
         //故在此做了一個判斷 經過比月筆數的答案再做一次關於月份的判斷，避免出現過期的月份
-        if (Date.parse(initCloseDate) < Date.parse(initYearMonth)) {
-            initCloseDate = moment(initYearMonth, "YYYYMM").add(-diffMonth, "M").format("YYYYMM");
-        } else {
-            initCloseDate = moment(initYearMonth, "YYYYMM").add(+diffMonth, "M").format("YYYYMM");
-        }
+        // if ( Date.parse(initYearMonth)<Date.parse(initCloseDate)) {
+        //     initCloseDate = moment(initYearMonth, "YYYYMM").add(diffMonth, "M").format("YYYYMM");
+        // } else {
+        //     initCloseDate = moment(initYearMonth, "YYYYMM").add(diffMonth, "M").format("YYYYMM");
+        // }
 
         console.log('initCloseDate', initCloseDate, 'initYearMonth', initYearMonth)
 
@@ -366,7 +408,7 @@ export default class Calendar extends Component {
                 day = 0 
 
             }else{
-                    day = moment(dataDateMax, "YYYYMM").format("MM") - moment(initYearMonth, "YYYYMM").format("MM") ;
+              day = moment(dataDateMax, "YYYYMM").format("MM") - moment(initYearMonth, "YYYYMM").format("MM") ;
             }
             console.log('day++',day);
             const newDay = moment(initYearMonth, "YYYYMM").add(day, "M").format("YYYYMM");

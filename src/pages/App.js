@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import Calendar from '../components/Calendar/Calendar';
-import jsonData from '../data/data5.json';
+import jsonData from '../data/data4.json';
+
 export default class App extends Component {
   constructor(){
     super();
@@ -48,10 +49,9 @@ export default class App extends Component {
     return (
       <div>
         {destroy?<Calendar
-          ref={ this.calendarRef }
-          // dataSource={ jsonData }
+          ref={ this.calendarRef }   
           dataSource={  jsonData }
-          initYearMonth={ `201708` }
+          initYearMonth={ '201411' }
           />:''}
         
       </div>
