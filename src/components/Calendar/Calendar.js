@@ -42,7 +42,7 @@ export default class Calendar extends Component {
         console.log('maxmin', minDate, maxDate);
         console.log('data', dataSource);
 
-
+        
         //處理找相近月的邏輯
         //https://stackoverflow.com/questions/8584902/get-closest-number-out-of-array
         function findClosestMonth(num, arr) {
@@ -357,7 +357,7 @@ export default class Calendar extends Component {
             if(nowFormat<=MinFormat ){
                 day = 0 
             }else{
-                    day = moment(dataDateMin, "YYYYMM").format("MM") - moment(initYearMonth, "YYYYMM").format("MM")  ;
+                day = moment(dataDateMin, "YYYYMM").format("MM") - moment(initYearMonth, "YYYYMM").format("MM")  ;
             }
               
             console.log('day--',day);
@@ -408,7 +408,9 @@ export default class Calendar extends Component {
                 day = 0 
 
             }else{
-              day = moment(dataDateMax, "YYYYMM").format("MM") - moment(initYearMonth, "YYYYMM").format("MM") ;
+              
+                day =  Math.abs(moment(dataDateMax, "YYYYMM").format("MM") - moment(initYearMonth, "YYYYMM").format("MM")) ;
+            
             }
             console.log('day++',day);
             const newDay = moment(initYearMonth, "YYYYMM").add(day, "M").format("YYYYMM");
@@ -492,20 +494,25 @@ export default class Calendar extends Component {
         if (nowFormat === minFormat) {
             console.log('zzzzz')
         } else {
-            let hasData = [];
-            do {
-                await this.updateDayInfo(-1);
-                let { dataSourceTmp, initYearMonth } = this.state;
-                hasData = await dataSourceTmp.filter((data) => {
-                    return +moment(data.date, "YYYY/MM/DD").format("YYYYMM") == moment(initYearMonth, "YYYYMM").format("YYYYMM");
-                })
-            } while (hasData.length === 0);
-
-            await this.listValue();
-            await this.createDays();
-            await this.filterData();
-            console.log('hasdata', hasData)
-
+            if (nowFormat === minFormat) {
+                console.log('zzzzz 沒月可換了')
+            }else{
+                let hasData = [];
+                do {
+                    await this.updateDayInfo(-1);
+                    let { dataSourceTmp, initYearMonth } = this.state;
+                    hasData = await dataSourceTmp.filter((data) => {
+                        return +moment(data.date, "YYYY/MM/DD").format("YYYYMM") == moment(initYearMonth, "YYYYMM").format("YYYYMM");
+                    })
+                } while (hasData.length === 0);
+    
+                await this.listValue();
+                await this.createDays();
+                await this.filterData();
+                console.log('hasdata', hasData)
+    
+            }
+          
         }
     }
     nextHaveDataMonth = async () => {
@@ -516,20 +523,24 @@ export default class Calendar extends Component {
         if (nowFormat === MaxFormat) {
             console.log('zzzzz 沒月可以換了')
         } else {
-
-            let hasData = [];
-            do {
-                await this.updateDayInfo(+1);
-                let { dataSourceTmp, initYearMonth } = this.state;
-                hasData = await dataSourceTmp.filter((data) => {
-                    return +moment(data.date, "YYYY/MM/DD").format("YYYYMM") == moment(initYearMonth, "YYYYMM").format("YYYYMM");
-                })
-            } while (hasData.length === 0);
-
-            await this.listValue();
-            await this.createDays();
-            await this.filterData();
-            console.log('hasdata', hasData)
+            if(nowFormat === MaxFormat){
+                console.log('zzzzz 沒月可以換了')
+            }else{
+                let hasData = [];
+                do {
+                    await this.updateDayInfo(+1);
+                    let { dataSourceTmp, initYearMonth } = this.state;
+                    hasData = await dataSourceTmp.filter((data) => {
+                        return +moment(data.date, "YYYY/MM/DD").format("YYYYMM") == moment(initYearMonth, "YYYYMM").format("YYYYMM");
+                    })
+                } while (hasData.length === 0);
+    
+                await this.listValue();
+                await this.createDays();
+                await this.filterData();
+                console.log('hasdata', hasData)
+            }
+           
         }
     }
 

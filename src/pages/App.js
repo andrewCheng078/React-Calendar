@@ -51,7 +51,7 @@ export default class App extends Component {
         {destroy?<Calendar
           ref={ this.calendarRef }   
           dataSource={  jsonData }
-          initYearMonth={ '201411' }
+          initYearMonth={ `http://127.0.0.1:3004/data` }
           />:''}
         
       </div>
